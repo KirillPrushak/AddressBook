@@ -5,8 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MailBook</title>
     <link rel="stylesheet" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
+    <!-- fom modal -->
+    <div id="fullscreen-div"></div>
+    <form class="modal" id="modal">
+      <div class="modal-head">
+        <h3 id="modal-title">Add Addres</h3>
+        <button type="button" id="close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-main">
+        <div class="modal-row">
+          <div class="modal-col">
+            <label for="">How should your main be addressed</label>
+            <input
+              type="text"
+              placeholder="E.g. The Smith Family"
+              class="form-control"
+              name="addr_ing_name"
+            />
+          </div>
+        </div>
+
+        <div class="modal-row grid-row">
+          <div class="modal-col">
+            <label for="">First name</label>
+            <input
+              type="text"
+              placeholder="The first name"
+              class="form-control"
+              name="first_name"
+            />
+          </div>
+          <div class="modal-col">
+            <label for="">Last name</label>
+            <input
+              type="text"
+              placeholder="The last name"
+              class="form-control"
+              name="last_name"
+            />
+          </div>
+        </div>
+
+        <div class="modal-row grid-row">
+          <div class="modal-col">
+            <label for="">Email</label>
+            <input
+              type="email"
+              placeholder="The email"
+              class="form-control"
+              name="email"
+            />
+          </div>
+          <div class="modal-col">
+            <label for="">Phone</label>
+            <input
+              type="text"
+              placeholder="The phone"
+              class="form-control"
+              name="phone"
+            />
+          </div>
+        </div>
+
+        <div class="modal-row grid-row">
+          <div class="modal-col">
+            <label for="">Street address</label>
+            <input
+              type="text"
+              placeholder="Street address, apartament, house number, etc"
+              class="form-control"
+              name="street_addr"
+            />
+          </div>
+          <div class="modal-col">
+            <label for="">Postal Code</label>
+            <input
+              type="text"
+              placeholder="60323"
+              class="form-control"
+              name="postal_code"
+            />
+          </div>
+        </div>
+
+        <div class="modal-row grid-row">
+          <div class="modal-col">
+            <label for="">City</label>
+            <input
+              type="text"
+              placeholder="City name"
+              class="form-control"
+              name="city"
+            />
+          </div>
+          <div class="modal-col">
+            <label for="">Country</label>
+            <select name="country" id="country-list">
+              <option value="">USA</option>
+            </select>
+          </div>
+
+          <div class="modal-row">
+            <div class="modal-col">
+              <label for="">Labels</label>
+              <select name="labels">
+                <option value="Family">Family</option>
+                <option value="Friends">Friends</option>
+                <option value="Colleagues">Colleagues</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-row" id="modal-btns">
+            <button type="submit" id="save-btn">Save</button>
+          </div>
+        </div>
+      </div>
+    </form>
+
     <script src="app.js"></script>
   </body>
 </html>

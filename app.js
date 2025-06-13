@@ -49,7 +49,7 @@ class Address {
     this.lastName = lastName;
     this.email = email;
     this.phone = phone;
-    this.streerAddr = streerAddr;
+    this.streetAddr = streetAddr;
     this.postCode = postCode;
     this.city = city;
     this.country = country;
@@ -71,6 +71,41 @@ class Address {
     const addresses = Address.getAddresses();
     addresses.push(address);
     localStorage.setItem('addresses', JSON.stringify(addresses));
+  }
+
+  static deleteAddress(id) {
+    const addresses = Address.getAddresses();
+    addresses.forEach((address, index) => {
+      if (address.id == id) {
+        addresses.splice(index, 1);
+      }
+    });
+    localStorage.setItem('addresses', JSON.stringify(addresses));
+    form.reset();
+    UI.closeModal();
+    addrBookList.innerHTML = '';
+    UI.showAddressList();
+  }
+
+  static updateAddress(item) {
+    const addresses = Address.getAddresses();
+    addresses.forEach((address) => {
+      if ((address.id = item.id)) {
+        address.addrName = item.addrName;
+        address.firstName = item.firstName;
+        address.lastName = item.lastName;
+        address.email = item.email;
+        address.phone = item.phone;
+        address.streetAddr = item.streetAddr;
+        address.postCode = item.postCode;
+        address.city = item.city;
+        address.country = item.country;
+        address.labels = item.labels;
+      }
+    });
+    localStorage.setItem('addresses', JSON.stringify(addresses));
+    addrBookList.innerHTML = '';
+    UI.showAddressList();
   }
 }
 class UI {
@@ -96,6 +131,32 @@ class UI {
             <td>${address.phone}</td>
         `;
     addrBookList.appendChild(tableRow);
+  }
+
+  static showModalData(id) {
+    const addresses = Address.getAddresses();
+    addresses.forEach((address) => {
+      if (address.id == id) {
+        form.addr_ing_name.value = address.addrName;
+        form.first_name.value = address.firstName;
+        form.last_name.value = address.lastName;
+        form.email.value = address.email;
+        form.phone.value = address.phone;
+        form.street_addr.value = address.streetAddr;
+        form.postal_code.value = address.postCode;
+        form.city.value = address.city;
+        form.country.value = address.country;
+        form.labels.value = address.labels;
+        document.getElementById(
+          'modal-title'
+        ).innerHTML = `Change Address Details`;
+
+        document.getElementById('modal-btns').innerHTML = `
+                    <button type = "submit" id = "update-btn" data-id = "${id}">Update</button>
+                    <button type = "button" id = "delete-btn" data-id = "${id}">Delete</button>
+                `;
+      }
+    });
   }
 
   static showModal() {
@@ -160,6 +221,61 @@ function eventListeners() {
         Address.addAddress(addressesItem);
         UI.closeModal();
         UI.addToAddressList(addressesItem);
+        form.reset();
+      }
+    }
+  });
+
+  //table row items
+  addrBookList.addEventListener('click', (event) => {
+    UI.showModal();
+    let trElement;
+    if (event.target.parentElement.tagName == 'TD') {
+      trElement = event.target.parentElement.parentElement;
+    }
+
+    if (event.target.parentElement.tagName == 'TR') {
+      trElement = event.target.parentElement;
+    }
+
+    let viewID = trElement.dataset.id;
+    UI.showModalData(viewID);
+  });
+
+  //delete an address item
+  modalBtns.addEventListener('click', (event) => {
+    if (event.target.id == 'delete-btn')
+      Address.deleteAddress(event.target.dataset.id);
+  });
+
+  //update an address item
+  modalBtns.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (event.target.id == 'update-btn') {
+      let id = event.target.dataset.id;
+      let isFormValid = getFormData();
+      if (!isFormValid) {
+        form.querySelectorAll('input').forEach((input) => {
+          setTimeout(() => {
+            input.classList.remove('errorMsg');
+          }, 1500);
+        });
+      } else {
+        const addressItem = new Address(
+          id,
+          addrName,
+          firstName,
+          lastName,
+          email,
+          phone,
+          streerAddr,
+          postCode,
+          city,
+          country,
+          labels
+        );
+        Address.updateAddress(addressItem);
+        UI.closeModal();
         form.reset();
       }
     }

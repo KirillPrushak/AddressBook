@@ -1,7 +1,10 @@
-const strRegex = /^[a-z][a-z-]+[a-z]$/;
+// regular expression for validation
+const strRegex = /^[a-zA-Z\s]*$/; // containing only letters
 const emailRegex =
-  /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
-const phoneRegex = /\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/;
+  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const phoneRegex =
+  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+/* supports following number formats - (123) 456-7890, (123)456-7890, 123-456-7890, 123.456.7890, 1234567890, +31636363634, 075-63546725 */
 const digitRegex = /^\d+$/;
 
 const countryList = document.getElementById('country-list');
@@ -11,7 +14,7 @@ const addBtn = document.getElementById('add-btn');
 const closeBtn = document.getElementById('close-btn');
 const modalBtns = document.getElementById('modal-btns');
 const form = document.getElementById('modal');
-const addBookList = document.querySelector('#addr-book-list tbody');
+const addrBookList = document.querySelector('#addr-book-list tbody');
 
 let addName =
   (firstName =
@@ -25,7 +28,76 @@ let addName =
   labels =
     '');
 
+class Address {
+  constructor(
+    id,
+    addrName,
+    firstName,
+    lastName,
+    email,
+    phone,
+    streerAddr,
+    postCode,
+    city,
+    country,
+    labels
+  ) {
+    this.id = id;
+    this.addrName = addrName;
+    this.firstName = firstName;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.phone = phone;
+    this.streerAddr = streerAddr;
+    this.postCode = postCode;
+    this.city = city;
+    this.country = country;
+    this.labels = labels;
+  }
+
+  static getAddresses() {
+    // from local storage
+    let addresses;
+    if (localStorage.getItem('addresses') == null) {
+      addresses = [];
+    } else {
+      addresses = JSON.parse(localStorage.getItem('addresses'));
+    }
+    return addresses;
+  }
+
+  static addAddress(address) {
+    const addresses = Address.getAddresses();
+    addresses.push(address);
+    localStorage.setItem('addresses', JSON.stringify(addresses));
+  }
+}
 class UI {
+  static showAddressList() {
+    const addresses = Address.getAddresses();
+    addresses.forEach((address) => UI.addToAddressList(address));
+  }
+
+  static addToAddressList(address) {
+    const tableRow = document.createElement('tr');
+    tableRow.setAttribute('data-id', address.id);
+    tableRow.innerHTML = `
+            <td>${address.id}</td>
+            <td>
+                <span class = "addressing-name">${
+                  address.addrName
+                }</span><br><span class = "address">${address.streetAddr} ${
+      address.postCode
+    } ${address.city} ${address.country}</span>
+            </td>
+            <td><span>${address.labels}</span></td>
+            <td>${address.firstName + ' ' + address.lastName}</td>
+            <td>${address.phone}</td>
+        `;
+    addrBookList.appendChild(tableRow);
+  }
+
   static showModal() {
     modal.style.display = 'block';
     fullscreenDiv.style.display = 'block';
@@ -40,6 +112,7 @@ class UI {
 window.addEventListener('DOMContentLoaded', () => {
   loadJSON();
   eventListeners();
+  UI.showAddressList();
 });
 
 function eventListeners() {
@@ -66,6 +139,28 @@ function eventListeners() {
             input.classList.remove('errorMsg');
           }, 1500);
         });
+      } else {
+        let allItem = Address.getAddresses();
+        lastItemId = allItem.length > 0 ? allItem[allItem.length - 1].id : 0;
+        lastItemId++;
+
+        const addressesItem = new Address(
+          lastItemId,
+          addrName,
+          firstName,
+          lastName,
+          email,
+          phone,
+          streerAddr,
+          postCode,
+          city,
+          country,
+          labels
+        );
+        Address.addAddress(addressesItem);
+        UI.closeModal();
+        UI.addToAddressList(addressesItem);
+        form.reset();
       }
     }
   });
@@ -77,33 +172,18 @@ function loadJSON() {
     .then((data) => {
       let html = '';
       data.forEach((country) => {
-        html += `<option>${country.country}</option>`;
+        html += `
+                <option> ${country.country} </option>
+            `;
       });
       countryList.innerHTML = html;
     });
 }
 
-// async function loadJSON() {
-//   let res = await fetch('countries.json');
-//   let data = await res.json();
-
-//   console.log(data);
-// }
-
-function getFormData(event) {
+function getFormData() {
   let inputValidStatus = [];
-  //   console.log(
-  //     form.addr_ing_name.value,
-  //     form.first_name.vale,
-  //     form.last_name.value,
-  //     form.email.value,
-  //     form.phone.value,
-  //     form.street_addr.value,
-  //     form.postal_code.value,
-  //     form.city.value,
-  //     form.country.value,
-  //     form.labels.value
-  //   );
+  // console.log(form.addr_ing_name.value, form.first_name.value, form.last_name.value, form.email.value, form.phone.value, form.street_addr.value, form.postal_code.value, form.city.value, form.country.value, form.labels.value);
+
   if (
     !strRegex.test(form.addr_ing_name.value) ||
     form.addr_ing_name.value.trim().length == 0
@@ -178,18 +258,6 @@ function getFormData(event) {
   }
   country = form.country.value;
   labels = form.labels.value;
-  // console.log(
-  //   addrName,
-  //   firstName,
-  //   lastName,
-  //   email,
-  //   phone,
-  //   streerAddr,
-  //   postCode,
-  //   city,
-  //   country,
-  //   labels
-  // );
   return inputValidStatus.includes(false) ? false : true;
 }
 
